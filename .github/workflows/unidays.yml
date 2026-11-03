@@ -2,7 +2,7 @@ name: UNiDAYS -> Discord
 
 on:
   schedule:
-    - cron: "17 * * * *"   # toutes les heures
+    - cron: "7,37 * * * *"   # toutes les 30 minutes
   workflow_dispatch:
 
 permissions:
