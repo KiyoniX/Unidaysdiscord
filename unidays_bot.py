@@ -31,7 +31,14 @@ NEXT_DATA_RE = re.compile(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', re.
 
 
 def fetch_page_data() -> dict:
-    resp = requests.get(PAGE_URL, headers={"User-Agent": USER_AGENT}, timeout=30)
+    # La page est servie par CloudFront avec un cache très permissif : chaque serveur
+    # relais peut renvoyer une copie périmée. Un paramètre aléatoire force une version fraîche.
+    resp = requests.get(
+        PAGE_URL,
+        params={"nocache": int(time.time() * 1000)},
+        headers={"User-Agent": USER_AGENT, "Cache-Control": "no-cache"},
+        timeout=30,
+    )
     resp.raise_for_status()
     match = NEXT_DATA_RE.search(resp.text)
     if not match:
