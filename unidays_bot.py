@@ -5,6 +5,7 @@ Usage :
     python unidays_bot.py             # poste les nouvelles offres sur le webhook
 
 Variable d'environnement requise (hors --dry-run) : DISCORD_WEBHOOK_URL
+(un ou plusieurs liens de webhook, un par ligne)
 Au tout premier lancement, les offres existantes sont seulement mémorisées
 (pas postées) pour éviter de spammer le salon. Utilise --post-existing pour forcer.
 """
@@ -178,12 +179,19 @@ def main():
         print("Premier lancement : offres mémorisées sans être postées.")
         return
 
-    webhook = os.environ.get("DISCORD_WEBHOOK_URL")
-    if not webhook:
+    # Un ou plusieurs webhooks, séparés par des retours à la ligne, virgules ou espaces.
+    webhooks = re.split(r"[\s,]+", os.environ.get("DISCORD_WEBHOOK_URL", "").strip())
+    webhooks = [w for w in webhooks if w]
+    if not webhooks:
         sys.exit("DISCORD_WEBHOOK_URL n'est pas défini.")
 
     for o in new[:MAX_POSTS_PER_RUN]:
-        post_to_discord(webhook, o)
+        for n, webhook in enumerate(webhooks, 1):
+            try:
+                post_to_discord(webhook, o)
+            except Exception as e:  # un webhook cassé ne doit pas bloquer les autres serveurs
+                status = getattr(getattr(e, "response", None), "status_code", type(e).__name__)
+                print(f"::warning::Webhook n°{n} en erreur ({status}) pour {o['brand']}")
         seen.add(o["id"])
         print(f"Posté : {o['brand']} - {o['title']}")
         time.sleep(1)
