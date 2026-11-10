@@ -24,10 +24,12 @@ jobs:
       - run: python unidays_bot.py
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CATALOGUE_WEBHOOK_URL: ${{ secrets.CATALOGUE_WEBHOOK_URL }}
+          CATALOGUE_PER_DAY: ${{ vars.CATALOGUE_PER_DAY }}
       - name: Sauvegarder les offres vues
         run: |
           git config user.name "unidays-bot"
           git config user.email "unidays-bot@users.noreply.github.com"
-          git add seen_offers.json
+          git add seen_offers.json $(ls catalogue_state.json 2>/dev/null)
           git diff --cached --quiet || git commit -m "Mise à jour des offres vues"
           git push

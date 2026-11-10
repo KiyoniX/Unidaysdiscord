@@ -6,6 +6,8 @@ Toutes les 30 minutes, il lit les offres publiques de la page d'accueil d'UNiDAY
 
 Il tourne gratuitement sur GitHub Actions : pas de serveur ni de PC allumé en permanence.
 
+En plus des nouveautés, le bot fait (re)découvrir le reste du catalogue : les ~300 offres permanentes qui ne sont jamais mises en avant sur l'accueil. Il en poste 3 par jour (une toutes les 8 heures), en alternant les catégories (mode, tech, beauté…), avec la mention « 💡 Offre à (re)découvrir ». Une offre qui expire dans moins de 2 jours est sautée au profit d'une autre, et une offre n'est jamais postée deux fois.
+
 ---
 
 ## Installer le bot sur ton serveur Discord (fork)
@@ -68,6 +70,17 @@ Le fork récupère la liste `seen_offers.json` du repo d'origine. Le premier pas
 
 ---
 
+## Régler les offres du catalogue (optionnel)
+
+Par défaut, les offres du catalogue sont postées dans le même salon que les nouveautés, au rythme de 3 par jour.
+
+- **Changer le rythme** : dans **Settings → Secrets and variables → Actions → onglet Variables**, crée une variable `CATALOGUE_PER_DAY` avec le nombre d'offres par jour (par exemple `4` pour une toutes les 6 h). Mets `0` pour désactiver la fonctionnalité. Le bot passant toutes les 30 minutes, il ne peut pas dépasser 48 par jour.
+- **Les poster dans un autre salon** : crée un webhook sur ce salon, puis ajoute un secret `CATALOGUE_WEBHOOK_URL` (un ou plusieurs liens, un par ligne). Sans ce secret, le bot utilise `DISCORD_WEBHOOK_URL`.
+
+Le bot note l'heure du dernier post du catalogue dans `catalogue_state.json`.
+
+---
+
 ## Dépannage
 
 | Problème | Solution |
@@ -89,7 +102,7 @@ Si GitHub signale un conflit (sur `seen_offers.json`, puisque chaque bot met à 
 
 ```powershell
 pip install -r requirements.txt
-python unidays_bot.py --dry-run          # affiche les nouvelles offres sans rien poster
+python unidays_bot.py --dry-run          # affiche les nouveautés et les 5 prochaines offres du catalogue, sans rien poster
 $env:DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
 python unidays_bot.py                    # poste les nouvelles offres
 ```
